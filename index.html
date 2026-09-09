@@ -1,0 +1,106 @@
+﻿<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Make Ten Adventure</title>
+<style>
+:root{font-family:system-ui,-apple-system,"Segoe UI",sans-serif;color:#172033;background:#f6f3ea}*{box-sizing:border-box}body{margin:0}.wrap{max-width:980px;margin:auto;padding:20px}header,.card{background:#fff;border:2px solid #263b5e;border-radius:20px;box-shadow:0 5px 0 #263b5e;margin:14px 0;padding:20px}h1{font-size:clamp(2rem,7vw,4rem);margin:.1em 0}.lead{font-size:1.15rem}nav,.choices,.levels{display:flex;gap:10px;flex-wrap:wrap}button{min-height:52px;min-width:52px;border:2px solid #263b5e;border-radius:14px;background:#fff;padding:10px 16px;font:inherit;font-weight:700;cursor:pointer}button:hover{background:#eef3f9}button:focus-visible{outline:4px solid #f0b429;outline-offset:2px}.active{background:#cde7ff}.hidden{display:none!important}.tenframe{display:grid;grid-template-columns:repeat(5,58px);gap:8px;margin:16px 0}.slot{width:58px;height:58px;border:3px solid #263b5e;border-radius:10px;background:#f9fbff;display:grid;place-items:center;padding:0}.slot[disabled]{opacity:1;cursor:default}.counter{width:38px;height:38px;border-radius:50%;background:#4f7cac;border:3px solid #172033}.counter.partB{background:#f2b134}.feedback{min-height:52px;padding:12px;border-radius:12px;background:#eef3f9;font-weight:650}.equation{font-size:1.65rem;font-weight:800;padding:10px 0}.story{font-size:1.2rem}.progress{font-weight:700}.small{font-size:.92rem;color:#43516a}.adult{border-style:dashed}.model-note{font-size:.95rem}.completion{background:#edf9ef}@media(max-width:650px){.wrap{padding:10px}.tenframe{grid-template-columns:repeat(5,minmax(44px,1fr))}.slot{width:auto;height:50px}.counter{width:32px;height:32px}button{min-height:50px}}@media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important;transition:none!important;animation:none!important}}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+<h1>Make Ten Adventure</h1>
+<p class="lead">Build quantities, discover ways to make ten, and solve tiny stories with counters you can see.</p>
+<p class="small">Designed for an adult-supported 8ΓÇô12 minute practice session. No timer, score, login, ads, tracking, or personal information.</p>
+<div class="levels" aria-label="Help level">
+<button id="scaffold1" class="active" onclick="setScaffold(1)">Hint level 1</button>
+<button id="scaffold2" onclick="setScaffold(2)">Hint level 2</button>
+<button id="speakBtn" onclick="toggleSpeech()">Read-aloud: off</button>
+</div>
+</header>
+<nav aria-label="Activities">
+<button onclick="showActivity('build')">1. Build a quantity</button>
+<button onclick="showActivity('ten')">2. Make ten</button>
+<button onclick="showActivity('stories')">3. Story problems</button>
+<button onclick="showActivity('finish')">Finish</button>
+</nav>
+<section id="build" class="card activity">
+<div class="progress">Activity 1 of 3</div><h2>Build a quantity</h2>
+<p>Make <strong id="targetNum">7</strong>. Tap empty spaces to add counters. Tap filled spaces to remove counters.</p>
+<div id="buildFrame" class="tenframe" role="group" aria-label="Ten-frame with ten distinct spaces"></div>
+<p class="equation" aria-live="polite"><span id="buildCount">0</span> counters</p>
+<div class="choices"><button onclick="checkBuild()">Check</button><button onclick="demoBuild()">Watch example</button><button onclick="newBuild()">New target</button><button onclick="resetBuild()">Reset</button></div>
+<div id="buildFeedback" class="feedback" role="status">Start in the first row and fill from left to right if that helps.</div>
+</section>
+<section id="ten" class="card activity hidden">
+<div class="progress">Activity 2 of 3</div><h2>Make ten</h2>
+<p>There are <strong id="startNum">7</strong> blue counters. How many gold counters finish the ten-frame?</p>
+<div id="tenFrame" class="tenframe" role="group" aria-label="Ten-frame showing two parts of a number bond"></div>
+<p id="tenEquation" class="equation" aria-live="polite">7 + 0 = 7</p>
+<div class="choices" id="addChoices"></div>
+<div class="choices"><button onclick="demoBond()">Watch 7 + 3</button><button onclick="newBond()">Another number bond</button><button onclick="resetBond()">Reset</button></div>
+<div id="tenFeedback" class="feedback" role="status">Count the empty spaces. That tells you what is missing.</div>
+</section>
+<section id="stories" class="card activity hidden">
+<div class="progress">Activity 3 of 3</div><h2>Story problems</h2>
+<p id="storyText" class="story"></p>
+<p class="model-note">Tap the frame to change the picture model. The answer is checked from the mathematics, not a special counter position.</p>
+<div id="storyFrame" class="tenframe" role="group" aria-label="Manipulable picture model for the story problem"></div>
+<p>Picture model: <strong id="storyModelCount">0</strong> objects</p>
+<p id="storyEquation" class="equation">?</p>
+<div class="choices" id="answerChoices"></div>
+<div class="choices"><button onclick="storyHint()">Hint</button><button onclick="nextStory()">Next story</button><button onclick="resetStory()">Reset story</button></div>
+<div id="storyFeedback" class="feedback" role="status">Use the picture model before the equation.</div>
+</section>
+<section id="finish" class="card activity completion hidden">
+<h2>Adventure complete</h2><p>You practiced matching numerals to quantities, making ten in different ways, and showing addition and subtraction with objects.</p><p><strong>Try next:</strong> Ask an adult to show some fingers. Say how many more fingers would make ten.</p><button onclick="resetAll()">Start again</button>
+</section>
+<section class="card adult">
+<h2>Adult guide</h2>
+<p>Let the learner choose either hint level at any time. Level 1 gives a strategy prompt. Level 2 gives a stronger visual or numerical cue without automatically completing the answer. Read-aloud uses browser speech only after the learner or adult turns it on; every prompt also remains visible.</p>
+<p class="small">Progress is kept only in page memory. Reloading the page or choosing ΓÇ£Start againΓÇ¥ clears lesson state. No data is sent anywhere by this lesson.</p>
+</section>
+</div>
+<script>
+const $=id=>document.getElementById(id);
+const buildTargets=[0,1,3,5,7,10];let buildTarget=7,buildCount=0,scaffold=1,speechOn=false;
+const bondStarts=[0,1,2,5,7,8,10];let bondStart=7,bondAdd=0;
+const stories=[
+{text:'Mia has 3 shells. She finds 2 more. How many shells now?',a:3,b:2,op:'+',ans:5},
+{text:'Kai has 8 toy cars. He puts 3 away. How many are left?',a:8,b:3,op:'-',ans:5},
+{text:'A bowl has 4 apples. An adult adds 5. How many apples are there?',a:4,b:5,op:'+',ans:9},
+{text:'There are 9 blocks. You remove 4. How many stay?',a:9,b:4,op:'-',ans:5},
+{text:'A row has 6 stars. Add 4 more. How many stars make the row?',a:6,b:4,op:'+',ans:10},
+{text:'Ten birds sit on a fence. 2 fly away. How many remain?',a:10,b:2,op:'-',ans:8},
+{text:'Fresh challenge: You have 7 counters. How many more make ten?',a:7,b:3,op:'+',ans:10}
+];let storyIndex=0,storyModelCount=3;
+function say(t){if(speechOn&&'speechSynthesis'in window){speechSynthesis.cancel();speechSynthesis.speak(new SpeechSynthesisUtterance(t))}}
+function toggleSpeech(){speechOn=!speechOn;$('speakBtn').textContent='Read-aloud: '+(speechOn?'on':'off');if(speechOn)say('Read aloud is on.')}
+function setScaffold(n){scaffold=n;$('scaffold1').classList.toggle('active',n===1);$('scaffold2').classList.toggle('active',n===2)}
+function showActivity(id){document.querySelectorAll('.activity').forEach(x=>x.classList.add('hidden'));$(id).classList.remove('hidden');history.replaceState(null,'','#'+id);say($(id).innerText.slice(0,220))}
+function makeFrame(el,count,partA=count,clickFn=null){el.innerHTML='';for(let i=0;i<10;i++){const b=document.createElement('button');b.className='slot';b.setAttribute('aria-label',`space ${i+1}, ${i<count?'filled':'empty'}`);if(i<count){const c=document.createElement('span');c.className='counter'+(i>=partA?' partB':'');c.setAttribute('aria-hidden','true');b.appendChild(c)}if(clickFn)b.onclick=()=>clickFn(i);else b.disabled=true;el.appendChild(b)}}
+function renderBuild(){$('targetNum').textContent=buildTarget;$('buildCount').textContent=buildCount;makeFrame($('buildFrame'),buildCount,buildCount,toggleBuild)}
+function toggleBuild(i){if(i<buildCount)buildCount=Math.max(0,buildCount-1);else if(i===buildCount&&buildCount<10)buildCount++;renderBuild()}
+function checkBuild(){const f=$('buildFeedback');if(buildCount===buildTarget){f.textContent=`Yes. ${buildTarget} is shown by exactly ${buildTarget} counter${buildTarget===1?'':'s'}.`;say(f.textContent)}else if(scaffold===1){f.textContent=buildCount<buildTarget?'Count on from what you have. Add one counter at a time.':'You have too many. Remove counters and count again.'}else{f.textContent=`You have ${buildCount}. The target is ${buildTarget}. ${Math.abs(buildTarget-buildCount)} ${buildCount<buildTarget?'more':'fewer'} will match.`}}
+function newBuild(){const i=(buildTargets.indexOf(buildTarget)+1)%buildTargets.length;buildTarget=buildTargets[i];buildCount=0;renderBuild();$('buildFeedback').textContent=buildTarget===0?'Zero means leave all ten spaces empty.':'Build the quantity you see.'}
+function resetBuild(){buildCount=0;renderBuild();$('buildFeedback').textContent='Reset. The ten-frame is empty.'}
+function demoBuild(){buildTarget=3;buildCount=3;renderBuild();$('buildFeedback').textContent='Example: three counters fill the first three spaces. The numeral 3 matches the quantity 3.';say($('buildFeedback').textContent)}
+function renderBond(){$('startNum').textContent=bondStart;makeFrame($('tenFrame'),bondStart+bondAdd,bondStart);$('tenEquation').textContent=`${bondStart} + ${bondAdd} = ${bondStart+bondAdd}`;$('addChoices').innerHTML='';for(let n=0;n<=10-bondStart;n++){const b=document.createElement('button');b.textContent=`Add ${n}`;b.onclick=()=>chooseAdd(n);$('addChoices').appendChild(b)}}
+function chooseAdd(n){bondAdd=n;renderBond();const f=$('tenFeedback');if(bondStart+n===10){f.textContent=`Exactly. ${bondStart} + ${n} = 10. The blue and gold parts make one whole ten.`;say(f.textContent)}else if(scaffold===1){f.textContent='Not ten yet. Count the empty spaces in the frame.'}else{f.textContent=`There are ${10-bondStart} empty spaces after the ${bondStart} blue counters.`}}
+function newBond(){bondStart=bondStarts[(bondStarts.indexOf(bondStart)+1)%bondStarts.length];bondAdd=0;renderBond();$('tenFeedback').textContent=bondStart===10?'Ten is already complete: 10 + 0 = 10.':'How many empty spaces are left?'}
+function resetBond(){bondAdd=0;renderBond();$('tenFeedback').textContent='Reset to the starting collection.'}
+function demoBond(){bondStart=7;bondAdd=3;renderBond();$('tenFeedback').textContent='Example: seven blue counters plus three gold counters fill all ten spaces: 7 + 3 = 10.';say($('tenFeedback').textContent)}
+function currentStory(){return stories[storyIndex]}
+function renderStory(){const s=currentStory();$('storyText').textContent=s.text;$('storyModelCount').textContent=storyModelCount;makeFrame($('storyFrame'),storyModelCount,storyModelCount,toggleStoryModel);$('storyEquation').textContent=`${s.a} ${s.op} ${s.b} = ?`;$('answerChoices').innerHTML='';const vals=[s.ans,Math.max(0,s.ans-1),Math.min(10,s.ans+1)].filter((v,i,a)=>a.indexOf(v)===i).sort((a,b)=>a-b);vals.forEach(v=>{const b=document.createElement('button');b.textContent=v;b.onclick=()=>answerStory(v);$('answerChoices').appendChild(b)})}
+function toggleStoryModel(i){if(i<storyModelCount)storyModelCount=Math.max(0,storyModelCount-1);else if(i===storyModelCount&&storyModelCount<10)storyModelCount++;$('storyModelCount').textContent=storyModelCount;makeFrame($('storyFrame'),storyModelCount,storyModelCount,toggleStoryModel)}
+function answerStory(v){const s=currentStory(),f=$('storyFeedback');if(v===s.ans){storyModelCount=s.ans;renderStory();f.textContent=`Yes. ${s.a} ${s.op} ${s.b} = ${s.ans}. The objects and equation agree.`;$('storyEquation').textContent=`${s.a} ${s.op} ${s.b} = ${s.ans}`;say(f.textContent)}else{f.textContent=scaffold===1?(s.op==='+'?'Start with the first group, then count on the new objects.':'Start with the first group, then take away one object at a time.'):`Try the picture: begin at ${s.a} and ${s.op==='+'?'move up':'move down'} ${s.b}.`}}
+function storyHint(){const s=currentStory();$('storyFeedback').textContent=scaffold===1?(s.op==='+'?'Touch-count the starting group, then count on.':'Cover the number being removed, then count what remains.'):`A stronger hint: ${s.a} ${s.op} ${s.b} means ${s.op==='+'?'combine':'remove'} ${s.b} from ${s.a}.`}
+function nextStory(){storyIndex=(storyIndex+1)%stories.length;storyModelCount=currentStory().a;renderStory();$('storyFeedback').textContent=storyIndex===stories.length-1?'Fresh challenge: use what you learned.':'New story. Use the picture first.'}
+function resetStory(){storyModelCount=currentStory().a;renderStory();$('storyFeedback').textContent='Reset this story to its starting picture.'}
+function resetAll(){buildTarget=7;buildCount=0;bondStart=7;bondAdd=0;storyIndex=0;storyModelCount=3;renderBuild();renderBond();renderStory();showActivity('build')}
+renderBuild();renderBond();renderStory();const requested=location.hash.slice(1);if(['build','ten','stories','finish'].includes(requested))showActivity(requested);
+</script>
+</body>
+</html>
